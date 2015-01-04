@@ -236,11 +236,27 @@
   //     bla: "even more stuff"
   //   }); // obj1 now contains key1, key2, key3 and bla
   _.extend = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+      for (var key in arguments[i]) {
+        obj[key] = arguments[i][key];
+      }
+    }
+
+    return obj;
   };
 
   // Like extend, but doesn't ever overwrite a key that already
   // exists in obj
   _.defaults = function(obj) {
+    for (var i = 1; i < arguments.length; i++) {
+      for(var key in arguments[i]) {
+        if (!obj.hasOwnProperty(key)) {
+          obj[key] = arguments[i][key];
+        }
+      }
+    }
+
+    return obj;
   };
 
 
@@ -283,8 +299,18 @@
   // _.memoize should return a function that, when called, will check if it has
   // already computed the result for the given argument and return that value
   // instead if possible.
-  _.memoize = function(func) {
+_.memoize = function(func) {
+  var storage = {};
+  return function() {
+    var input = Array.prototype.slice.call(arguments);
+    if (storage[input] !== undefined) {
+      return storage[input];
+    } else {
+      storage[input] = func.apply(this, input);
+      return storage[input];
+    }
   };
+};
 
   // Delays a function for the given number of milliseconds, and then calls
   // it with the arguments supplied.
@@ -293,6 +319,10 @@
   // parameter. For example _.delay(someFunction, 500, 'a', 'b') will
   // call someFunction('a', 'b') after 500ms
   _.delay = function(func, wait) {
+    var input = Array.prototype.slice.call(arguments, 2);
+    setTimeout(function() {
+      return func.apply(null, input);
+    }, wait);
   };
 
 
@@ -307,6 +337,16 @@
   // input array. For a tip on how to make a copy of an array, see:
   // http://mdn.io/Array.prototype.slice
   _.shuffle = function(array) {
+    var newArray = [];
+    var newIndex = 1;
+
+    for (var i = 0; i < array.length; i++) {
+      var randomPlace = Math.floor(Math.random() * newIndex);
+      newArray.splice(randomPlace, 0, array[i]);
+      newIndex += 1;
+    }
+
+    return newArray;
   };
 
 
